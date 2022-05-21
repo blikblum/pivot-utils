@@ -1,0 +1,20 @@
+{
+  "name": "pivot-utils",
+  "version": "0.1.0",
+  "description": "Pivot table utilities",
+  "exports": "./src/utilities.js",
+  "type": "module",
+  "repository": "https://github.com/blikblum/pivot-utils.git",
+  "author": "Luiz Américo Pereira Câmara",
+  "license": "MIT",
+  "scripts": {
+    "test": "yarn node --experimental-vm-modules $(yarn bin jest)"
+  },
+  "packageManager": "yarn@4.0.0-rc.6",
+  "dependencies": {
+    "prop-types": "^15.8.1"
+  },
+  "devDependencies": {
+    "jest": "^28.1.0"
+  }
+}
