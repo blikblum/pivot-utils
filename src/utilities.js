@@ -1,5 +1,3 @@
-import PropTypes from 'prop-types';
-
 const zeroCharCodeStr = String.fromCharCode(0);
 
 const addSeparators = function(nStr, thousandsSep, decimalSep) {
@@ -524,12 +522,6 @@ Data Model class
 class PivotData {
   constructor(inputProps = {}) {
     this.props = Object.assign({}, PivotData.defaultProps, inputProps);
-    PropTypes.checkPropTypes(
-      PivotData.propTypes,
-      this.props,
-      'prop',
-      'PivotData'
-    );
 
     this.aggregator = this.props.aggregators[this.props.aggregatorName](
       this.props.vals
@@ -769,22 +761,6 @@ PivotData.defaultProps = {
   derivedAttributes: {},
 };
 
-PivotData.propTypes = {
-  data: PropTypes.oneOfType([PropTypes.array, PropTypes.object, PropTypes.func])
-    .isRequired,
-  aggregatorName: PropTypes.string,
-  cols: PropTypes.arrayOf(PropTypes.string),
-  rows: PropTypes.arrayOf(PropTypes.string),
-  vals: PropTypes.arrayOf(PropTypes.string),
-  valueFilter: PropTypes.objectOf(PropTypes.objectOf(PropTypes.bool)),
-  sorters: PropTypes.oneOfType([
-    PropTypes.func,
-    PropTypes.objectOf(PropTypes.func),
-  ]),
-  derivedAttributes: PropTypes.objectOf(PropTypes.func),
-  rowOrder: PropTypes.oneOf(['key_a_to_z', 'value_a_to_z', 'value_z_to_a']),
-  colOrder: PropTypes.oneOf(['key_a_to_z', 'value_a_to_z', 'value_z_to_a']),
-};
 
 export {
   aggregatorTemplates,
