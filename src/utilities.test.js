@@ -1,13 +1,7 @@
 import * as utils from './utilities.js';
 /* eslint-disable no-magic-numbers */
 
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
+
 const fixtureData = [
   ['name', 'gender', 'colour', 'birthday', 'trials', 'successes'],
   ['Nick', 'male', 'blue', '1982-11-07', 103, 12],
@@ -114,8 +108,8 @@ describe('  utils', function() {
       it('can be iterated over', function() {
         let numNotNull = 0;
         let numNull = 0;
-        for (const r of Array.from(pd.getRowKeys())) {
-          for (const c of Array.from(pd.getColKeys())) {
+        for (const r of pd.getRowKeys()) {
+          for (const c of pd.getColKeys()) {
             if (pd.getAggregator(r, c).value() !== null) {
               numNotNull++;
             } else {
