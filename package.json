@@ -10,7 +10,7 @@
   "scripts": {
     "test": "yarn node --experimental-vm-modules $(yarn bin jest)"
   },
-  "packageManager": "yarn@4.0.0-rc.6",
+  "packageManager": "yarn@4.0.0-rc.33",
   "devDependencies": {
     "jest": "^28.1.0"
   },
