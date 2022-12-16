@@ -2,17 +2,41 @@
   "name": "pivot-utils",
   "version": "0.1.1",
   "description": "Pivot table utilities",
-  "exports": "./src/utilities.js",
+  "exports": {
+    ".": "./src/utilities.js",
+    "./lit.js": "./src/lit.js",
+    "./lit": "./src/lit.js"
+  },
   "type": "module",
   "repository": "https://github.com/blikblum/pivot-utils.git",
   "author": "Luiz Américo Pereira Câmara",
   "license": "MIT",
   "scripts": {
-    "test": "yarn node --experimental-vm-modules $(yarn bin jest)"
+    "demo:dev": "vite",
+    "demo:build": "vite build",
+    "test": "yarn node --experimental-vm-modules $(yarn bin jest)",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "packageManager": "yarn@4.0.0-rc.33",
+  "peerDependencies": {
+    "lit": "^2.5.0"
+  },
   "devDependencies": {
-    "jest": "^28.1.0"
+    "@storybook/addon-essentials": "7.0.0-beta.9",
+    "@storybook/addon-interactions": "7.0.0-beta.9",
+    "@storybook/addon-links": "7.0.0-beta.9",
+    "@storybook/blocks": "7.0.0-beta.9",
+    "@storybook/builder-vite": "^0.2.5",
+    "@storybook/web-components": "7.0.0-beta.9",
+    "@storybook/web-components-vite": "7.0.0-alpha.35",
+    "jest": "^28.1.0",
+    "lit": "^2.5.0",
+    "lit-html": "2.5.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "storybook": "7.0.0-beta.9",
+    "vite": "^4.0.1"
   },
   "files": [
     "src"
