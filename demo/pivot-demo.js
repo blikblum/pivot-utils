@@ -1,6 +1,6 @@
 import { LitElement, css, html } from 'lit'
 import { PivotData } from 'pivot-utils'
-import { pivotTableLegacy, pivotTable } from '../src/lit.js'
+import { pivotTableLegacy, pivotTable, pivotHeader, pivotRow } from '../src/lit.js'
 import '../styles/pivottable.css'
 
 const fixtureData = [
@@ -45,6 +45,24 @@ export class PivotDemo extends LitElement {
 
       <h4>Table renderer</h4>
       ${pivotTable(this.data, { keyFormatters })}
+
+      <h4>Table header</h4>
+      <table class="pvtTable">
+        <thead>
+          ${pivotHeader(this.data, [['f'], ['m']], {
+            colAttrs: ['Gender'],
+            rowAttrs: ['Color'],
+            colFormatters: [keyFormatters.gender],
+          })}
+        </thead>
+      </table>
+
+      <h4>Table row</h4>
+      <table class="pvtTable">
+        <tbody>
+          ${pivotRow(this.data, ['blue'], [['m']], { rowFormatters: [() => 'Blue'] })}
+        </tbody>
+      </table>
 
       <h4>Legacy table renderer</h4>
       ${pivotTableLegacy(this.data)} `

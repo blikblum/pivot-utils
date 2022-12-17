@@ -36,6 +36,81 @@ function identity(v) {
   return v
 }
 
+export function pivotHeader(
+  pivotData,
+  colKeys,
+  { colFormatters = [], colAttrs = pivotData.props.cols, rowAttrs = pivotData.props.rows } = {}
+) {
+  return colAttrs.map(function (attr, attrIndex) {
+    return html`
+      <tr>
+        ${attrIndex === 0 &&
+        rowAttrs.length !== 0 &&
+        html`<th colspan=${rowAttrs.length} rowspan=${colAttrs.length}></th>`}
+        <th class="pvtAxisLabel">${attr}</th>
+        ${colKeys.map(function (colKey, colKeyIndex) {
+          const colSpan = spanSize(colKeys, colKeyIndex, attrIndex)
+
+          if (colSpan === -1) {
+            return null
+          }
+
+          const formatter = colFormatters[attrIndex]
+
+          return html`
+            <th
+              class="pvtColLabel"
+              colspan=${colSpan}
+              rowspan=${attrIndex === colAttrs.length - 1 && rowAttrs.length !== 0 ? 2 : 1}
+            >
+              ${(formatter && formatter(colKey[attrIndex])) || colKey[attrIndex]}
+            </th>
+          `
+        })}${attrIndex === 0 &&
+        html`
+          <th class="pvtTotalLabel" rowspan=${colAttrs.length + (rowAttrs.length === 0 ? 0 : 1)}>
+            Totals
+          </th>
+        `}
+      </tr>
+      ${rowAttrs.length !== 0 &&
+      html`
+        <tr>
+          ${rowAttrs.map(function (attr) {
+            return html` <th class="pvtAxisLabel">${attr}</th> `
+          })}
+          <th class="pvtTotalLabel">${colAttrs.length === 0 ? 'Totals' : null}</th>
+        </tr>
+      `}
+    `
+  })
+}
+
+export function pivotRow(pivotData, rowKey, colKeys, { rowFormatters = [] } = {}) {
+  const colAttrs = pivotData.props.cols
+  const totalAggregator = pivotData.getAggregator(rowKey, [])
+  return html`
+    <tr>
+      ${rowKey.map(function (keyValue, keyValueIndex) {
+        const formatter = rowFormatters[keyValueIndex]
+        return html`
+          <th
+            class="pvtRowLabel"
+            colspan=${keyValueIndex === rowKey.length - 1 && colAttrs.length !== 0 ? 2 : 1}
+          >
+            ${(formatter && formatter(keyValue)) || keyValue}
+          </th>
+        `
+      })}
+      ${colKeys.map(function (colKey) {
+        const aggregator = pivotData.getAggregator(rowKey, colKey)
+        return html` <td class="pvtVal">${aggregator.format(aggregator.value())}</td> `
+      })}
+      <td class="pvtTotal">${totalAggregator.format(totalAggregator.value())}</td>
+    </tr>
+  `
+}
+
 export function pivotTable(pivotData, { keyFormatters = {} } = {}) {
   const colAttrs = pivotData.props.cols || []
   const rowAttrs = pivotData.props.rows || []
@@ -49,56 +124,11 @@ export function pivotTable(pivotData, { keyFormatters = {} } = {}) {
   return html`
     <table class="pvtTable">
       <thead>
-        ${colAttrs.map(function (attr, attrIndex) {
-          return html`
-            <tr>
-              ${attrIndex === 0 &&
-              rowAttrs.length !== 0 &&
-              html` <th colspan=${rowAttrs.length} rowspan=${colAttrs.length}></th> `}
-              <th class="pvtAxisLabel">${attr}</th>
-              ${colKeys.map(function (colKey, colKeyIndex) {
-                const colSpan = spanSize(colKeys, colKeyIndex, attrIndex)
-
-                if (colSpan === -1) {
-                  return null
-                }
-
-                return html`
-                  <th
-                    class="pvtColLabel"
-                    colspan=${colSpan}
-                    rowspan=${attrIndex === colAttrs.length - 1 && rowAttrs.length !== 0 ? 2 : 1}
-                  >
-                    ${colFormatters[attrIndex](colKey[attrIndex])}
-                  </th>
-                `
-              })}${attrIndex === 0 &&
-              html`
-                <th
-                  class="pvtTotalLabel"
-                  rowspan=${colAttrs.length + (rowAttrs.length === 0 ? 0 : 1)}
-                >
-                  Totals
-                </th>
-              `}
-            </tr>
-          `
-        })}${rowAttrs.length !== 0 &&
-        html`
-          <tr>
-            ${rowAttrs.map(function (r, i) {
-              return html` <th class="pvtAxisLabel" key=${`rowAttr${i}`}>${r}</th> `
-            })}
-            <th class="pvtTotalLabel">${colAttrs.length === 0 ? 'Totals' : null}</th>
-          </tr>
-        `}
+        ${pivotHeader(pivotData, colKeys, { colFormatters })}
       </thead>
       <tbody>
         ${rowKeys.map(function (rowKey) {
-          const rowLabels = rowKey.map((keyValue, keyValueIndex) =>
-            rowFormatters[keyValueIndex](keyValue)
-          )
-          return pivotRow(pivotData, rowKey, colKeys, { rowLabels })
+          return pivotRow(pivotData, rowKey, colKeys, { rowFormatters })
         })}
         <tr>
           <th class="pvtTotalLabel" colspan=${rowAttrs.length + (colAttrs.length === 0 ? 0 : 1)}>
@@ -116,30 +146,6 @@ export function pivotTable(pivotData, { keyFormatters = {} } = {}) {
         </tr>
       </tbody>
     </table>
-  `
-}
-
-export function pivotRow(pivotData, rowKey, colKeys, { rowLabels = [] } = {}) {
-  const colAttrs = pivotData.props.cols
-  const totalAggregator = pivotData.getAggregator(rowKey, [])
-  return html`
-    <tr>
-      ${rowKey.map(function (keyValue, keyValueIndex) {
-        return html`
-          <th
-            class="pvtRowLabel"
-            colspan=${keyValueIndex === rowKey.length - 1 && colAttrs.length !== 0 ? 2 : 1}
-          >
-            ${rowLabels[keyValueIndex] || keyValue}
-          </th>
-        `
-      })}
-      ${colKeys.map(function (colKey) {
-        const aggregator = pivotData.getAggregator(rowKey, colKey)
-        return html` <td class="pvtVal">${aggregator.format(aggregator.value())}</td> `
-      })}
-      <td class="pvtTotal">${totalAggregator.format(totalAggregator.value())}</td>
-    </tr>
   `
 }
 
