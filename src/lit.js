@@ -1,5 +1,22 @@
 import { html } from 'lit'
 
+export const legacyClasses = {
+  table: 'pvtTable',
+  axisLabel: 'pvtAxisLabel',
+  val: 'pvtVal',
+  colLabel: 'pvtColLabel',
+  rowLabel: 'pvtRowLabel',
+  totalLabel: 'pvtTotalLabel',
+  total: 'pvtTotal',
+  grandTotal: 'pvtGrandTotal',
+}
+
+const defaultClasses = { ...legacyClasses }
+
+export function setDefaultClasses(classes = {}) {
+  Object.assign(defaultClasses, classes)
+}
+
 // helper function for setting row/col-span
 function spanSize(arr, i, j) {
   let x
@@ -39,7 +56,12 @@ function identity(v) {
 export function pivotHeader(
   pivotData,
   colKeys,
-  { colFormatters = [], colAttrs = pivotData.props.cols, rowAttrs = pivotData.props.rows } = {}
+  {
+    colFormatters = [],
+    colAttrs = pivotData.props.cols,
+    rowAttrs = pivotData.props.rows,
+    classes = defaultClasses,
+  } = {}
 ) {
   return colAttrs.map(function (attr, attrIndex) {
     return html`
@@ -47,7 +69,7 @@ export function pivotHeader(
         ${attrIndex === 0 &&
         rowAttrs.length !== 0 &&
         html`<th colspan=${rowAttrs.length} rowspan=${colAttrs.length}></th>`}
-        <th class="pvtAxisLabel">${attr}</th>
+        <th class=${classes.axisLabel}>${attr}</th>
         ${colKeys.map(function (colKey, colKeyIndex) {
           const colSpan = spanSize(colKeys, colKeyIndex, attrIndex)
 
@@ -59,7 +81,7 @@ export function pivotHeader(
 
           return html`
             <th
-              class="pvtColLabel"
+              class=${classes.colLabel}
               colspan=${colSpan}
               rowspan=${attrIndex === colAttrs.length - 1 && rowAttrs.length !== 0 ? 2 : 1}
             >
@@ -68,7 +90,10 @@ export function pivotHeader(
           `
         })}${attrIndex === 0 &&
         html`
-          <th class="pvtTotalLabel" rowspan=${colAttrs.length + (rowAttrs.length === 0 ? 0 : 1)}>
+          <th
+            class=${classes.totalLabel}
+            rowspan=${colAttrs.length + (rowAttrs.length === 0 ? 0 : 1)}
+          >
             Totals
           </th>
         `}
@@ -77,16 +102,21 @@ export function pivotHeader(
       html`
         <tr>
           ${rowAttrs.map(function (attr) {
-            return html` <th class="pvtAxisLabel">${attr}</th> `
+            return html` <th class=${classes.axisLabel}>${attr}</th> `
           })}
-          <th class="pvtTotalLabel">${colAttrs.length === 0 ? 'Totals' : null}</th>
+          <th class=${classes.totalLabel}>${colAttrs.length === 0 ? 'Totals' : null}</th>
         </tr>
       `}
     `
   })
 }
 
-export function pivotRow(pivotData, rowKey, colKeys, { rowFormatters = [] } = {}) {
+export function pivotRow(
+  pivotData,
+  rowKey,
+  colKeys,
+  { rowFormatters = [], classes = defaultClasses } = {}
+) {
   const colAttrs = pivotData.props.cols
   const totalAggregator = pivotData.getAggregator(rowKey, [])
   return html`
@@ -95,7 +125,7 @@ export function pivotRow(pivotData, rowKey, colKeys, { rowFormatters = [] } = {}
         const formatter = rowFormatters[keyValueIndex]
         return html`
           <th
-            class="pvtRowLabel"
+            class=${classes.rowLabel}
             colspan=${keyValueIndex === rowKey.length - 1 && colAttrs.length !== 0 ? 2 : 1}
           >
             ${(formatter && formatter(keyValue)) || keyValue}
@@ -104,14 +134,14 @@ export function pivotRow(pivotData, rowKey, colKeys, { rowFormatters = [] } = {}
       })}
       ${colKeys.map(function (colKey) {
         const aggregator = pivotData.getAggregator(rowKey, colKey)
-        return html` <td class="pvtVal">${aggregator.format(aggregator.value())}</td> `
+        return html` <td class=${classes.val}>${aggregator.format(aggregator.value())}</td> `
       })}
-      <td class="pvtTotal">${totalAggregator.format(totalAggregator.value())}</td>
+      <td class=${classes.total}>${totalAggregator.format(totalAggregator.value())}</td>
     </tr>
   `
 }
 
-export function pivotTable(pivotData, { keyFormatters = {} } = {}) {
+export function pivotTable(pivotData, { keyFormatters = {}, classes = defaultClasses } = {}) {
   const colAttrs = pivotData.props.cols || []
   const rowAttrs = pivotData.props.rows || []
   const rowKeys = pivotData.getRowKeys()
@@ -122,7 +152,7 @@ export function pivotTable(pivotData, { keyFormatters = {} } = {}) {
   const rowFormatters = rowAttrs.map((attr) => keyFormatters[attr] || identity)
 
   return html`
-    <table class="pvtTable">
+    <table class=${classes.table}>
       <thead>
         ${pivotHeader(pivotData, colKeys, { colFormatters })}
       </thead>
@@ -131,16 +161,19 @@ export function pivotTable(pivotData, { keyFormatters = {} } = {}) {
           return pivotRow(pivotData, rowKey, colKeys, { rowFormatters })
         })}
         <tr>
-          <th class="pvtTotalLabel" colspan=${rowAttrs.length + (colAttrs.length === 0 ? 0 : 1)}>
+          <th
+            class=${classes.totalLabel}
+            colspan=${rowAttrs.length + (colAttrs.length === 0 ? 0 : 1)}
+          >
             Totals
           </th>
           ${colKeys.map(function (colKey) {
             const totalAggregator = pivotData.getAggregator([], colKey)
             return html`
-              <td class="pvtTotal">${totalAggregator.format(totalAggregator.value())}</td>
+              <td class=${classes.total}>${totalAggregator.format(totalAggregator.value())}</td>
             `
           })}
-          <td class="pvtGrandTotal">
+          <td class=${classes.grandTotal}>
             ${grandTotalAggregator.format(grandTotalAggregator.value())}
           </td>
         </tr>

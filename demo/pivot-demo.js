@@ -15,12 +15,6 @@ const genderLabels = { m: 'Male', f: 'Female' }
 
 const keyFormatters = { gender: (v) => genderLabels[v] || '--' }
 
-/**
- * An example element.
- *
- * @slot - This element has a slot
- * @csspart button - The button
- */
 export class PivotDemo extends LitElement {
   static get properties() {
     return {}
@@ -45,6 +39,12 @@ export class PivotDemo extends LitElement {
 
       <h4>Table renderer</h4>
       ${pivotTable(this.data, { keyFormatters })}
+
+      <h4>Bootstrap style</h4>
+
+      <div class="w-50">
+        ${pivotTable(this.data, { keyFormatters, classes: { table: 'table table-bordered' } })}
+      </div>
 
       <h4>Table header</h4>
       <table class="pvtTable">
