@@ -53,7 +53,7 @@ function identity(v) {
   return v
 }
 
-export function pivotHeader(
+export function pivotHead(
   pivotData,
   colKeys,
   {
@@ -154,7 +154,7 @@ export function pivotTable(pivotData, { keyFormatters = {}, classes = defaultCla
   return html`
     <table class=${classes.table}>
       <thead>
-        ${pivotHeader(pivotData, colKeys, { colFormatters })}
+        ${pivotHead(pivotData, colKeys, { colFormatters })}
       </thead>
       <tbody>
         ${rowKeys.map(function (rowKey) {
