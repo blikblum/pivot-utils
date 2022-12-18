@@ -1,11 +1,12 @@
 {
   "name": "pivot-utils",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Pivot table utilities",
   "exports": {
     ".": "./src/utilities.js",
     "./lit.js": "./src/lit.js",
-    "./lit": "./src/lit.js"
+    "./lit": "./src/lit.js",
+    "./styles/*": "./styles/*"
   },
   "type": "module",
   "repository": "https://github.com/blikblum/pivot-utils.git",
@@ -39,6 +40,7 @@
     "vite": "^4.0.1"
   },
   "files": [
-    "src"
+    "src",
+    "styles"
   ]
 }
