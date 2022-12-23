@@ -115,7 +115,7 @@ export function pivotRow(
   pivotData,
   rowKey,
   colKeys,
-  { rowFormatters = [], classes = defaultClasses } = {}
+  { rowFormatters = [], classes = defaultClasses, onValueClick } = {}
 ) {
   const colAttrs = pivotData.props.cols
   const totalAggregator = pivotData.getAggregator(rowKey, [])
@@ -134,14 +134,23 @@ export function pivotRow(
       })}
       ${colKeys.map(function (colKey) {
         const aggregator = pivotData.getAggregator(rowKey, colKey)
-        return html` <td class=${classes.val}>${aggregator.format(aggregator.value())}</td> `
+        return html`
+          <td class=${classes.val} @click=${onValueClick} .rowKey=${rowKey} .colKey=${colKey}>
+            ${aggregator.format(aggregator.value())}
+          </td>
+        `
       })}
-      <td class=${classes.total}>${totalAggregator.format(totalAggregator.value())}</td>
+      <td class=${classes.total} @click=${onValueClick} .rowKey=${rowKey} .colKey=${[]}>
+        ${totalAggregator.format(totalAggregator.value())}
+      </td>
     </tr>
   `
 }
 
-export function pivotTable(pivotData, { keyFormatters = {}, classes = defaultClasses } = {}) {
+export function pivotTable(
+  pivotData,
+  { keyFormatters = {}, classes = defaultClasses, onValueClick } = {}
+) {
   const colAttrs = pivotData.props.cols || []
   const rowAttrs = pivotData.props.rows || []
   const rowKeys = pivotData.getRowKeys()
@@ -158,7 +167,7 @@ export function pivotTable(pivotData, { keyFormatters = {}, classes = defaultCla
       </thead>
       <tbody>
         ${rowKeys.map(function (rowKey) {
-          return pivotRow(pivotData, rowKey, colKeys, { rowFormatters })
+          return pivotRow(pivotData, rowKey, colKeys, { rowFormatters, onValueClick })
         })}
         <tr>
           <th

@@ -1,6 +1,6 @@
 import { LitElement, css, html } from 'lit'
 import { PivotData } from 'pivot-utils'
-import { pivotTableLegacy, pivotTable, pivotHead, pivotRow } from '../src/lit.js'
+import { pivotTableLegacy, pivotTable, pivotHead, pivotRow } from 'pivot-utils/lit.js'
 import '../styles/pivottable.css'
 
 const fixtureData = [
@@ -14,6 +14,11 @@ const fixtureData = [
 const genderLabels = { m: 'Male', f: 'Female' }
 
 const keyFormatters = { gender: (v) => genderLabels[v] || '--' }
+
+function valueClick(e) {
+  const { rowKey, colKey, textContent } = e.target
+  alert(`Value: ${textContent.trim()} - rowKey: ${rowKey} - colKey: ${colKey}`)
+}
 
 export class PivotDemo extends LitElement {
   static get properties() {
@@ -38,7 +43,7 @@ export class PivotDemo extends LitElement {
     return html`<h1>Pivot Utils Demo</h1>
 
       <h4>Table renderer</h4>
-      ${pivotTable(this.data, { keyFormatters })}
+      ${pivotTable(this.data, { keyFormatters, onValueClick: valueClick })}
 
       <h4>Bootstrap style</h4>
 
