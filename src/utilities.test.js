@@ -83,8 +83,8 @@ describe('  utils', function () {
 
     describe('with valueFilter', function () {
       const pd = new utils.PivotData({
-        data: fixtureData,
-        valueFilter: { gender: { male: true } },
+        data: fixtureData.concat([['Jim', 'none', 'yellow', '1983-12-08', 10, 10]]),
+        valueFilter: { gender: { male: true, none: true } },
         aggregatorName: 'Sum',
         vals: ['successes'],
         rows: ['gender'],
@@ -93,12 +93,12 @@ describe('  utils', function () {
       it('has the correct keys', () => {
         const rowKeys = pd.getRowKeys()
 
-        expect(rowKeys.length).toBe(1)
-        expect(rowKeys[0]).toEqual(['female'])
+        expect(rowKeys.length).toBe(2)
+        expect(rowKeys).toEqual([['male'], ['none']])
       })
 
       it('has the correct grand total value', () =>
-        expect(pd.getAggregator([], []).value()).toBe(39))
+        expect(pd.getAggregator([], []).value()).toBe(52))
     })
 
     describe('with rows/cols', function () {
