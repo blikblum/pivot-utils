@@ -83,8 +83,11 @@ describe('  utils', function () {
 
     describe('with valueFilter', function () {
       const pd = new utils.PivotData({
-        data: fixtureData.concat([['Jim', 'none', 'yellow', '1983-12-08', 10, 10]]),
-        valueFilter: { gender: { male: true, none: true } },
+        data: fixtureData.concat([
+          ['Jim', 'null', 'yellow', '1983-12-08', 10, 10],
+          ['Jim', null, 'yellow', '1983-12-08', 10, 10],
+        ]),
+        valueFilter: { gender: ['male', null] },
         aggregatorName: 'Sum',
         vals: ['successes'],
         rows: ['gender'],
@@ -94,11 +97,30 @@ describe('  utils', function () {
         const rowKeys = pd.getRowKeys()
 
         expect(rowKeys.length).toBe(2)
-        expect(rowKeys).toEqual([['male'], ['none']])
+        expect(rowKeys).toEqual([[null], ['male']])
       })
 
       it('has the correct grand total value', () =>
         expect(pd.getAggregator([], []).value()).toBe(52))
+
+      it('should compare dates using its value', function () {
+        const pd2 = new utils.PivotData({
+          data: [
+            { date: new Date('2020-01-01'), count: 1 },
+            { date: new Date('2020-01-01'), count: 2 },
+            { date: new Date('2020-01-02'), count: 4 },
+          ],
+          valueFilter: { date: [new Date('2020-01-01')] },
+          aggregatorName: 'Sum',
+          vals: ['count'],
+          rows: ['date'],
+        })
+
+        const rowKeys = pd2.getRowKeys()
+        expect(rowKeys.length).toBe(1)
+        const agg = pd2.getAggregator([], [])
+        expect(agg.value()).toBe(3)
+      })
     })
 
     describe('with rows/cols', function () {

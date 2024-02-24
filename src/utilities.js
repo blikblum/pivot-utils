@@ -451,6 +451,10 @@ const mthNamesEn = [
 const dayNamesEn = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const zeroPad = (number) => `0${number}`.substr(-2, 2) // eslint-disable-line no-magic-numbers
 
+function getValue(v) {
+  return (v && v.valueOf()) || v
+}
+
 const derivers = {
   bin(col, binWidth) {
     return (record) => record[col] - (record[col] % binWidth)
@@ -517,7 +521,7 @@ class PivotData {
 
   filter(record) {
     for (const k in this.props.valueFilter) {
-      if (!(record[k] in this.props.valueFilter[k])) {
+      if (!this.props.valueFilter[k].some((value) => getValue(value) === getValue(record[k]))) {
         return false
       }
     }
