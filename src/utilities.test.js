@@ -121,6 +121,22 @@ describe('  utils', function () {
         const agg = pd2.getAggregator([], [])
         expect(agg.value()).toBe(3)
       })
+
+      it('should throw when value is not an array', function () {
+        expect(() => {
+          new utils.PivotData({
+            data: fixtureData,
+            valueFilter: { gender: { male: true } },
+          })
+        }).toThrow('PivotData: valueFilter should be an object with array values')
+
+        expect(() => {
+          new utils.PivotData({
+            data: fixtureData,
+            valueFilter: true,
+          })
+        }).toThrow('PivotData: valueFilter should be an object with array values')
+      })
     })
 
     describe('with rows/cols', function () {

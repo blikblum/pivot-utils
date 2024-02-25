@@ -455,6 +455,27 @@ function getValue(v) {
   return (v && v.valueOf()) || v
 }
 
+function normalizeValueFilter(valueFilter) {
+  if (!valueFilter) {
+    return {}
+  }
+
+  if (typeof valueFilter === 'object') {
+    let invalid = false
+    for (const values of Object.values(valueFilter)) {
+      if (!Array.isArray(values)) {
+        invalid = true
+        break
+      }
+    }
+    if (!invalid) {
+      return valueFilter
+    }
+  }
+
+  throw new Error('PivotData: valueFilter should be an object with array values')
+}
+
 const derivers = {
   bin(col, binWidth) {
     return (record) => record[col] - (record[col] % binWidth)
@@ -502,6 +523,7 @@ class PivotData {
   constructor(inputProps = {}) {
     this.props = Object.assign({}, PivotData.defaultProps, inputProps)
 
+    this.props.valueFilter = normalizeValueFilter(this.props.valueFilter)
     this.aggregator = this.props.aggregators[this.props.aggregatorName](this.props.vals)
     this.tree = {}
     this.rowKeys = []
@@ -720,7 +742,6 @@ PivotData.defaultProps = {
   vals: [],
   aggregatorName: 'Count',
   sorters: {},
-  valueFilter: {},
   rowOrder: 'key_a_to_z',
   colOrder: 'key_a_to_z',
   derivedAttributes: {},
