@@ -404,23 +404,33 @@ const customFormat = numberFormat({
   suffix: ' USD',
 })
 
-// Create a custom aggregator using templates
+// Create custom aggregators using templates with custom formatters
 const customAggregators = {
   'Custom Sum': aggregatorTemplates.sum(customFormat),
   'Custom Average': aggregatorTemplates.average(customFormat),
-  // You can also create entirely custom aggregators
-  'Custom Count Plus One': aggregatorTemplates.count()(
-    () => () => ({
-      count: 1, // Start at 1 instead of 0
-      push() {
-        this.count++
-      },
-      value() {
-        return this.count
-      },
-      format: numberFormat({ digitsAfterDecimal: 0 }),
-    })
-  ),
+  
+  // Or create a completely custom aggregator from scratch
+  'Weighted Average': ([valueAttr, weightAttr]) => {
+    return function () {
+      return {
+        sumProduct: 0,
+        sumWeight: 0,
+        push(record) {
+          const value = parseFloat(record[valueAttr])
+          const weight = parseFloat(record[weightAttr])
+          if (!isNaN(value) && !isNaN(weight)) {
+            this.sumProduct += value * weight
+            this.sumWeight += weight
+          }
+        },
+        value() {
+          return this.sumWeight === 0 ? 0 : this.sumProduct / this.sumWeight
+        },
+        format: customFormat,
+        numInputs: 2,
+      }
+    }
+  },
 }
 
 const pivotData = new PivotData({
@@ -500,7 +510,7 @@ const pivotData = new PivotData({
 Customize number display:
 
 ```javascript
-import { numberFormat } from 'pivot-utils'
+import { numberFormat, aggregatorTemplates } from 'pivot-utils'
 
 const euroFormat = numberFormat({
   digitsAfterDecimal: 2,
@@ -547,8 +557,11 @@ import 'pivot-utils/styles/pivottable.css'
 ```javascript
 import { html, LitElement } from 'lit'
 import { PivotData } from 'pivot-utils'
-// Import Lit templates - both 'pivot-utils/lit' and 'pivot-utils/lit.js' work
+
+// Import Lit templates - both paths work:
 import { pivotTable, pivotTableLegacy, pivotHead, pivotRow } from 'pivot-utils/lit'
+// or
+// import { pivotTable, pivotTableLegacy, pivotHead, pivotRow } from 'pivot-utils/lit.js'
 
 // Note: You'll need to import the CSS separately in your HTML or build config
 // The styles are available at: node_modules/pivot-utils/styles/pivottable.css
