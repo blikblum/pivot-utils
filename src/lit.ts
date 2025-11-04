@@ -1,6 +1,19 @@
-import { html } from 'lit'
+// @ts-ignore - lit is a peer dependency
+import { html, TemplateResult } from 'lit'
+import { PivotData } from './utilities.js'
 
-export const legacyClasses = {
+export interface Classes {
+  table?: string
+  axisLabel?: string
+  val?: string
+  colLabel?: string
+  rowLabel?: string
+  totalLabel?: string
+  total?: string
+  grandTotal?: string
+}
+
+export const legacyClasses: Classes = {
   table: 'pvtTable',
   axisLabel: 'pvtAxisLabel',
   val: 'pvtVal',
@@ -11,14 +24,14 @@ export const legacyClasses = {
   grandTotal: 'pvtGrandTotal',
 }
 
-const defaultClasses = { ...legacyClasses }
+const defaultClasses: Classes = { ...legacyClasses }
 
-export function setDefaultClasses(classes = {}) {
+export function setDefaultClasses(classes: Partial<Classes> = {}): void {
   Object.assign(defaultClasses, classes)
 }
 
 // helper function for setting row/col-span
-function spanSize(arr, i, j) {
+function spanSize(arr: any[][], i: number, j: number): number {
   let x
   if (i !== 0) {
     let asc, end
@@ -49,20 +62,27 @@ function spanSize(arr, i, j) {
   return len
 }
 
-function identity(v) {
+function identity(v: any): any {
   return v
 }
 
+export interface PivotHeadOptions {
+  colFormatters?: Array<((v: any) => any) | undefined>
+  colAttrs?: string[]
+  rowAttrs?: string[]
+  classes?: Classes
+}
+
 export function pivotHead(
-  pivotData,
-  colKeys,
+  pivotData: PivotData,
+  colKeys: any[][],
   {
     colFormatters = [],
     colAttrs = pivotData.props.cols,
     rowAttrs = pivotData.props.rows,
     classes = defaultClasses,
-  } = {}
-) {
+  }: PivotHeadOptions = {}
+): TemplateResult {
   return colAttrs.map(function (attr, attrIndex) {
     return html`
       <tr>
@@ -111,12 +131,18 @@ export function pivotHead(
   })
 }
 
+export interface PivotRowOptions {
+  rowFormatters?: Array<((v: any) => any) | undefined>
+  classes?: Classes
+  onValueClick?: (e: Event) => void
+}
+
 export function pivotRow(
-  pivotData,
-  rowKey,
-  colKeys,
-  { rowFormatters = [], classes = defaultClasses, onValueClick } = {}
-) {
+  pivotData: PivotData,
+  rowKey: any[],
+  colKeys: any[][],
+  { rowFormatters = [], classes = defaultClasses, onValueClick }: PivotRowOptions = {}
+): TemplateResult {
   const colAttrs = pivotData.props.cols
   const totalAggregator = pivotData.getAggregator(rowKey, [])
   return html`
@@ -147,10 +173,16 @@ export function pivotRow(
   `
 }
 
+export interface PivotTableOptions {
+  keyFormatters?: Record<string, (v: any) => any>
+  classes?: Classes
+  onValueClick?: (e: Event) => void
+}
+
 export function pivotTable(
-  pivotData,
-  { keyFormatters = {}, classes = defaultClasses, onValueClick } = {}
-) {
+  pivotData: PivotData,
+  { keyFormatters = {}, classes = defaultClasses, onValueClick }: PivotTableOptions = {}
+): TemplateResult {
   const colAttrs = pivotData.props.cols || []
   const rowAttrs = pivotData.props.rows || []
   const rowKeys = pivotData.getRowKeys()
@@ -191,62 +223,70 @@ export function pivotTable(
   `
 }
 
-export function pivotTableLegacy(pivotData, options = {}) {
+export interface PivotTableLegacyOptions {
+  heatmapMode?: 'full' | 'row' | 'col' | false
+  tableColorScaleGenerator?: (values: number[]) => (v: number) => string
+  tableOptions?: {
+    clickCallback?: (e: Event, value: any, filters: Record<string, any>, pivotData: PivotData) => void
+  }
+}
+
+export function pivotTableLegacy(pivotData: PivotData, options: PivotTableLegacyOptions = {}): TemplateResult {
   const colAttrs = pivotData.props.cols || []
   const rowAttrs = pivotData.props.rows || []
   const rowKeys = pivotData.getRowKeys()
   const colKeys = pivotData.getColKeys()
   const grandTotalAggregator = pivotData.getAggregator([], [])
 
-  let valueCellColors = () => ''
-  let rowTotalColors = () => ''
-  let colTotalColors = () => ''
+  let valueCellColors: (r: any, c: any, v: any) => string = () => ''
+  let rowTotalColors: (v: any) => string = () => ''
+  let colTotalColors: (v: any) => string = () => ''
   if (options.heatmapMode) {
-    const colorScaleGenerator = options.tableColorScaleGenerator
+    const colorScaleGenerator = options.tableColorScaleGenerator!
     const rowTotalValues = colKeys.map((x) => pivotData.getAggregator([], x).value())
     rowTotalColors = colorScaleGenerator(rowTotalValues)
     const colTotalValues = rowKeys.map((x) => pivotData.getAggregator(x, []).value())
     colTotalColors = colorScaleGenerator(colTotalValues)
 
     if (options.heatmapMode === 'full') {
-      const allValues = []
+      const allValues: number[] = []
       rowKeys.map((r) => colKeys.map((c) => allValues.push(pivotData.getAggregator(r, c).value())))
       const colorScale = colorScaleGenerator(allValues)
-      valueCellColors = (r, c, v) => colorScale(v)
+      valueCellColors = (_r: any, _c: any, v: any) => colorScale(v)
     } else if (options.heatmapMode === 'row') {
-      const rowColorScales = {}
+      const rowColorScales: Record<string, (v: number) => string> = {}
       rowKeys.map((r) => {
         const rowValues = colKeys.map((x) => pivotData.getAggregator(r, x).value())
-        rowColorScales[r] = colorScaleGenerator(rowValues)
+        rowColorScales[String(r)] = colorScaleGenerator(rowValues)
       })
-      valueCellColors = (r, c, v) => rowColorScales[r](v)
+      valueCellColors = (r: any, _c: any, v: any) => rowColorScales[String(r)](v)
     } else if (options.heatmapMode === 'col') {
-      const colColorScales = {}
+      const colColorScales: Record<string, (v: number) => string> = {}
       colKeys.map((c) => {
         const colValues = rowKeys.map((x) => pivotData.getAggregator(x, c).value())
-        colColorScales[c] = colorScaleGenerator(colValues)
+        colColorScales[String(c)] = colorScaleGenerator(colValues)
       })
-      valueCellColors = (r, c, v) => colColorScales[c](v)
+      valueCellColors = (_r: any, c: any, v: any) => colColorScales[String(c)](v)
     }
   }
 
   const getClickHandler =
     options.tableOptions && options.tableOptions.clickCallback
-      ? (value, rowValues, colValues) => {
-          const filters = {}
+      ? (value: any, rowValues: any[], colValues: any[]) => {
+          const filters: Record<string, any> = {}
           for (const i of Object.keys(colAttrs)) {
-            const attr = colAttrs[i]
-            if (colValues[i] !== null) {
-              filters[attr] = colValues[i]
+            const attr = colAttrs[Number(i)]
+            if (colValues[Number(i)] !== null) {
+              filters[attr] = colValues[Number(i)]
             }
           }
           for (const i of Object.keys(rowAttrs)) {
-            const attr = rowAttrs[i]
-            if (rowValues[i] !== null) {
-              filters[attr] = rowValues[i]
+            const attr = rowAttrs[Number(i)]
+            if (rowValues[Number(i)] !== null) {
+              filters[attr] = rowValues[Number(i)]
             }
           }
-          return (e) => options.tableOptions.clickCallback(e, value, filters, pivotData)
+          return (e: Event) => options.tableOptions!.clickCallback!(e, value, filters, pivotData)
         }
       : null
 
