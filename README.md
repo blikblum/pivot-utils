@@ -28,7 +28,10 @@ yarn add pivot-utils
 ## Basic Usage
 
 ```javascript
+// Import the main utilities
 import { PivotData } from 'pivot-utils'
+// or import multiple items
+// import { PivotData, aggregatorTemplates, numberFormat } from 'pivot-utils'
 
 // Sample data (can be array of objects or array of arrays)
 const data = [
@@ -523,13 +526,32 @@ const customAggregators = {
 
 ## Using with Lit
 
-The library provides Lit templates for rendering pivot tables:
+The library provides Lit templates for rendering pivot tables.
+
+### Styling
+
+The package includes CSS for styling pivot tables at `styles/pivottable.css`. You can import it in your HTML:
+
+```html
+<link rel="stylesheet" href="node_modules/pivot-utils/styles/pivottable.css">
+```
+
+Or in your JavaScript bundler configuration (Vite, Webpack, etc.):
+
+```javascript
+import 'pivot-utils/styles/pivottable.css'
+```
+
+### Example
 
 ```javascript
 import { html, LitElement } from 'lit'
 import { PivotData } from 'pivot-utils'
-import { pivotTable, pivotTableLegacy, pivotHead, pivotRow } from 'pivot-utils/lit.js'
-import 'pivot-utils/styles/pivottable.css'
+// Import Lit templates - both 'pivot-utils/lit' and 'pivot-utils/lit.js' work
+import { pivotTable, pivotTableLegacy, pivotHead, pivotRow } from 'pivot-utils/lit'
+
+// Note: You'll need to import the CSS separately in your HTML or build config
+// The styles are available at: node_modules/pivot-utils/styles/pivottable.css
 
 class MyElement extends LitElement {
   render() {
