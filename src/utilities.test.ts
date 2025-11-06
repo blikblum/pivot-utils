@@ -1,4 +1,4 @@
-import * as utils from './utilities.ts'
+import * as utils from './index.ts'
 /* eslint-disable no-magic-numbers */
 
 const fixtureData = [
