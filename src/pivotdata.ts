@@ -1,6 +1,6 @@
 // Import types and functions from utilities and aggregators
 import { naturalSort, getSort, type SortFunction, type Sorters, type DerivedAttributes } from './utilities.ts'
-import { aggregators, type Aggregator, type AggregatorGenerator, type Aggregators } from './aggregators.ts'
+import { aggregators, type Aggregator, type AggregatorFunction, type AggregatorGenerator, type Aggregators } from './aggregators.ts'
 
 // Type definitions for PivotData
 export type ValueFilter = Record<string, any[]>
@@ -8,7 +8,7 @@ export type ValueFilter = Record<string, any[]>
 export interface PivotDataProps {
   data?: any[] | ((record: (record: Record<string, any>) => void) => void)
   aggregators?: Aggregators
-  aggregatorName?: string
+  aggregator?: string | AggregatorFunction
   cols?: string[]
   rows?: string[]
   vals?: string[]
@@ -65,7 +65,16 @@ export class PivotData {
     this.props = Object.assign({}, PivotData.defaultProps, inputProps) as any
 
     this.props.valueFilter = normalizeValueFilter(this.props.valueFilter)
-    this.aggregator = this.props.aggregators[this.props.aggregatorName](this.props.vals)
+    // Handle both string lookup and direct AggregatorFunction
+    if (typeof this.props.aggregator === 'string') {
+      const aggregatorFn = this.props.aggregators[this.props.aggregator]
+      if (!aggregatorFn) {
+        throw new Error(`PivotData: aggregator '${this.props.aggregator}' not found in aggregators`)
+      }
+      this.aggregator = aggregatorFn(this.props.vals)
+    } else {
+      this.aggregator = this.props.aggregator(this.props.vals)
+    }
     this.tree = {}
     this.rowKeys = []
     this.colKeys = []
@@ -235,7 +244,7 @@ export class PivotData {
     cols: [],
     rows: [],
     vals: [],
-    aggregatorName: 'Count',
+    aggregator: 'Count',
     sorters: {},
     rowOrder: 'key_a_to_z',
     colOrder: 'key_a_to_z',

@@ -31,7 +31,7 @@ describe('  utils', function () {
       ]
       const pd = new utils.PivotData({
         data: aoaInput,
-        aggregatorName: 'Sum over Sum',
+        aggregator: 'Sum over Sum',
         vals: ['a', 'b'],
       })
 
@@ -46,7 +46,7 @@ describe('  utils', function () {
       ]
       const pd = new utils.PivotData({
         data: aosInput,
-        aggregatorName: 'Sum over Sum',
+        aggregator: 'Sum over Sum',
         vals: ['a', 'b'],
       })
 
@@ -58,7 +58,7 @@ describe('  utils', function () {
       const raggedAosInput = [{ a: 1 }, { b: 4 }, { a: 3, b: 2 }]
       const pd = new utils.PivotData({
         data: raggedAosInput,
-        aggregatorName: 'Sum over Sum',
+        aggregator: 'Sum over Sum',
         vals: ['a', 'b'],
       })
 
@@ -73,12 +73,48 @@ describe('  utils', function () {
       }
       const pd = new utils.PivotData({
         data: functionInput,
-        aggregatorName: 'Sum over Sum',
+        aggregator: 'Sum over Sum',
         vals: ['a', 'b'],
       })
 
       it('has the correct grand total value', () =>
         expect(pd.getAggregator([], []).value()).toBe((1 + 3) / (2 + 4)))
+    })
+
+    describe('with AggregatorFunction passed directly', function () {
+      const aosInput = [
+        { a: 1, b: 2 },
+        { a: 3, b: 4 },
+      ]
+
+      it('works with sumOverSum aggregator', () => {
+        const pd = new utils.PivotData({
+          data: aosInput,
+          aggregator: utils.aggregatorTemplates.sumOverSum(),
+          vals: ['a', 'b'],
+        })
+        expect(pd.getAggregator([], []).value()).toBe((1 + 3) / (2 + 4))
+      })
+
+      it('works with count aggregator', () => {
+        const pd = new utils.PivotData({
+          data: aosInput,
+          aggregator: utils.aggregatorTemplates.count(),
+          vals: [],
+        })
+        expect(pd.getAggregator([], []).value()).toBe(2)
+      })
+    })
+
+    describe('with invalid aggregator name', function () {
+      it('should throw when aggregator name is not found', function () {
+        expect(() => {
+          new utils.PivotData({
+            data: fixtureData,
+            aggregator: 'NonExistentAggregator',
+          })
+        }).toThrow("PivotData: aggregator 'NonExistentAggregator' not found in aggregators")
+      })
     })
 
     describe('with valueFilter', function () {
@@ -88,7 +124,7 @@ describe('  utils', function () {
           ['Jim', null, 'yellow', '1983-12-08', 10, 10],
         ]),
         valueFilter: { gender: ['male', null] },
-        aggregatorName: 'Sum',
+        aggregator: 'Sum',
         vals: ['successes'],
         rows: ['gender'],
       })
@@ -111,7 +147,7 @@ describe('  utils', function () {
             { date: new Date('2020-01-02'), count: 4 },
           ],
           valueFilter: { date: [new Date('2020-01-01')] },
-          aggregatorName: 'Sum',
+          aggregator: 'Sum',
           vals: ['count'],
           rows: ['date'],
         })
@@ -222,7 +258,7 @@ describe('  utils', function () {
       return new utils.PivotData({
         data: fixtureData,
         aggregators: { agg },
-        aggregatorName: 'agg',
+        aggregator: 'agg',
         vals,
       })
         .getAggregator([], [])

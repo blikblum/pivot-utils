@@ -29,7 +29,7 @@ export class PivotDemo extends LitElement {
     super()
     this.data = new PivotData({
       data: fixtureData,
-      aggregatorName: 'Count',
+      aggregator: 'Count',
       rows: ['colour'],
       cols: ['gender'],
     })
