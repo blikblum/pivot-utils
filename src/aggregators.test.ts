@@ -1,4 +1,4 @@
-import { PivotData } from './utilities.ts'
+import { PivotData } from './index.ts'
 
 const fixtureData = [
   ['name', 'gender', 'colour', 'birthday', 'trials', 'successes'],

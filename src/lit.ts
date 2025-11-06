@@ -1,6 +1,6 @@
 // @ts-ignore - lit is a peer dependency
 import { html, TemplateResult } from 'lit'
-import { PivotData } from './utilities.js'
+import { PivotData } from './index.js'
 
 export interface Classes {
   table?: string
