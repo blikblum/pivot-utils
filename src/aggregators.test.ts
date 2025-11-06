@@ -13,7 +13,7 @@ describe('aggregators', () => {
     it('should count number of records', () => {
       const pd = new PivotData({
         data: fixtureData,
-        aggregatorName: 'Count',
+        aggregator: 'Count',
         rows: ['colour'],
         cols: ['gender'],
       })
@@ -36,7 +36,7 @@ describe('aggregators', () => {
     it('should sum value of a field', () => {
       const pd = new PivotData({
         data: fixtureData,
-        aggregatorName: 'Sum',
+        aggregator: 'Sum',
         vals: ['successes'],
         rows: ['colour'],
         cols: ['gender'],
@@ -60,7 +60,7 @@ describe('aggregators', () => {
     it('should count number of unique values of a field', () => {
       const pd = new PivotData({
         data: fixtureData,
-        aggregatorName: 'Count Unique Values',
+        aggregator: 'Count Unique Values',
         vals: ['successes'],
         rows: ['colour'],
         cols: ['gender'],
@@ -84,7 +84,7 @@ describe('aggregators', () => {
     it('should list unique values of a field', () => {
       const pd = new PivotData({
         data: fixtureData,
-        aggregatorName: 'List Unique Values',
+        aggregator: 'List Unique Values',
         vals: ['successes'],
         rows: ['colour'],
         cols: ['gender'],
@@ -108,7 +108,7 @@ describe('aggregators', () => {
     it('should count as fraction of total', () => {
       const pd = new PivotData({
         data: fixtureData,
-        aggregatorName: 'Count as Fraction of Total',
+        aggregator: 'Count as Fraction of Total',
         rows: ['colour'],
         cols: ['gender'],
       })
@@ -131,7 +131,7 @@ describe('aggregators', () => {
     it('should count as fraction of row', () => {
       const pd = new PivotData({
         data: fixtureData,
-        aggregatorName: 'Count as Fraction of Rows',
+        aggregator: 'Count as Fraction of Rows',
         rows: ['colour'],
         cols: ['gender'],
       })
@@ -154,7 +154,7 @@ describe('aggregators', () => {
     it('should count as fraction of columns', () => {
       const pd = new PivotData({
         data: fixtureData,
-        aggregatorName: 'Count as Fraction of Columns',
+        aggregator: 'Count as Fraction of Columns',
         rows: ['colour'],
         cols: ['gender'],
       })
