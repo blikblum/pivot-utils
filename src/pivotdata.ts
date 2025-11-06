@@ -67,7 +67,11 @@ export class PivotData {
     this.props.valueFilter = normalizeValueFilter(this.props.valueFilter)
     // Handle both string lookup and direct AggregatorFunction
     if (typeof this.props.aggregator === 'string') {
-      this.aggregator = this.props.aggregators[this.props.aggregator](this.props.vals)
+      const aggregatorFn = this.props.aggregators[this.props.aggregator]
+      if (!aggregatorFn) {
+        throw new Error(`PivotData: aggregator '${this.props.aggregator}' not found in aggregators`)
+      }
+      this.aggregator = aggregatorFn(this.props.vals)
     } else {
       this.aggregator = this.props.aggregator(this.props.vals)
     }

@@ -106,6 +106,17 @@ describe('  utils', function () {
       })
     })
 
+    describe('with invalid aggregator name', function () {
+      it('should throw when aggregator name is not found', function () {
+        expect(() => {
+          new utils.PivotData({
+            data: fixtureData,
+            aggregator: 'NonExistentAggregator',
+          })
+        }).toThrow("PivotData: aggregator 'NonExistentAggregator' not found in aggregators")
+      })
+    })
+
     describe('with valueFilter', function () {
       const pd = new utils.PivotData({
         data: fixtureData.concat([
